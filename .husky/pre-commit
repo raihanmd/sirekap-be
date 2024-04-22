@@ -1,0 +1,34 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🚀🚀 Preparing your project before committing... 👷🚧"
+
+
+echo "🧽🧽🧽 Formatting with Prettier"
+yarn format || {
+  echo "❌❌❌ Prettier Format Failed. Run yarn format.";
+  false;
+}
+
+
+echo "🧹🧹🧹 Checking ESLint"
+yarn lint || {
+  echo "🤢🤢🤢 ESLint Check Failed. Make the required change above.";
+  false;
+}
+
+
+echo "👷👷👷 Building your project"
+yarn build || {
+  echo "🏨🏨🏨 Build Failed. Oops building failed checkout what is the problem.";
+  false;
+}
+
+echo "🧪🧪🧪 Testing your project 🔬🔬🔬"
+yarn test || {
+  echo "🧪🧪🧪 Test Failed. Nah man you're didnt that good.";
+  false;
+}
+
+
+echo "🎉🎉🎉 You win. Committing this now. 🎉🎉🎉"
