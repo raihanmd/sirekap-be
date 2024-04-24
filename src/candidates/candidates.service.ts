@@ -6,13 +6,10 @@ import {
   DeleteCandidatesDto,
   PatchCandidatesDto,
   PostCandidatesDto,
+  QueryCandidatesParam,
 } from "./dto";
 import { CitiesService } from "../cities/cities.service";
 import { GoogleDriveService } from "../common/google-drive/google-drive.service";
-
-export type QueryCandidatesParam = {
-  type?: string;
-};
 
 @Injectable()
 export class CandidatesService {
@@ -23,16 +20,13 @@ export class CandidatesService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getAll(data: QueryCandidatesParam) {
-    const filters = data.type ? { type: data.type } : {};
-
+  async getAll(data?: QueryCandidatesParam) {
     return this.prismaService.candidates.findMany({
       select: {
         id: true,
         name: true,
         type: true,
         image: true,
-        public_id: true,
         province: {
           select: {
             name: true,
@@ -49,7 +43,7 @@ export class CandidatesService {
           },
         },
       },
-      where: filters,
+      where: { type: data?.type },
       orderBy: {
         type: "asc",
       },
@@ -77,7 +71,6 @@ export class CandidatesService {
         name: true,
         type: true,
         image: true,
-        public_id: true,
         province: {
           select: {
             name: true,
@@ -139,7 +132,6 @@ export class CandidatesService {
         name: true,
         type: true,
         image: true,
-        public_id: true,
         province: {
           select: {
             name: true,

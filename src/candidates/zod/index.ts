@@ -1,5 +1,5 @@
+import { CandidatesType } from "@prisma/client";
 import { z } from "zod";
-import { CandidatesType } from "../dto";
 
 const MAX_FILE_SIZE = 5000000; // 5MB
 const ACCEPTED_MIME_TYPES = [
@@ -37,7 +37,7 @@ export class CandidatesValidation {
   });
 
   static QUERY = z.object({
-    type: z.string().optional(),
+    type: z.nativeEnum(CandidatesType).optional(),
   });
 
   static PATCH = z.object({

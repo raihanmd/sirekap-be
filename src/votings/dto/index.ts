@@ -1,11 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { CandidatesType } from "@prisma/client";
 
 export class PostVotingEventDto {
   @ApiProperty({ type: String })
-  name!: string;
-
-  @ApiProperty({ type: String })
-  type!: string;
+  type!: CandidatesType;
 
   @ApiProperty({ type: Number })
   start_time!: number;

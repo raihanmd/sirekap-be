@@ -19,7 +19,6 @@ export class UsersService {
     private readonly prismaService: PrismaService,
     private readonly provincesService: ProvincesService,
     private readonly citiesService: CitiesService,
-    private readonly provincesSevice: ProvincesService,
   ) {}
 
   async register(data: RegisterUserDto) {

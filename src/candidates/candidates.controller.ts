@@ -33,6 +33,7 @@ import { CandidatesValidation } from "./zod";
 import { Roles } from "../common/role/roles.decorator";
 import { RoleGuard } from "../common/role/role.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { CandidatesType } from "@prisma/client";
 
 @UseGuards(RoleGuard)
 @ApiTags("Candidates")
@@ -53,10 +54,8 @@ export class CandidatesController {
     example: "",
   })
   @Get("/")
-  async getAll(@Query("type") type?: string) {
-    const queryReq = {
-      type: type?.toUpperCase(),
-    };
+  async getAll(@Query("type") type?: CandidatesType) {
+    const queryReq = { type: type?.toUpperCase() as CandidatesType };
 
     this.validationService.validate(CandidatesValidation.QUERY, queryReq);
     const res = await this.candidatesService.getAll(queryReq);

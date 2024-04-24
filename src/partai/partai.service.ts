@@ -18,13 +18,23 @@ export class PartaiService {
   ) {}
 
   async getAll() {
-    return this.prismaService.politicalParties.findMany();
+    return this.prismaService.politicalParties.findMany({
+      select: {
+        id: true,
+        name: true,
+        image: true,
+      },
+    });
   }
 
   async create(data: PostPartaiDto) {
     const isPartaiExist = await this.prismaService.politicalParties.findUnique({
       where: {
         name: data.name,
+      },
+      select: {
+        name: true,
+        image: true,
       },
     });
 

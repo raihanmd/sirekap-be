@@ -8,7 +8,12 @@ export class VotingsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getAll() {
-    return this.prismaService.votingEvents.findMany();
+    // const presidens = await this.candidatesService.getAll({ type: "PRESIDEN" });
+
+    return this.prismaService.$queryRaw`
+      SELECT voting_events.start_time, voting_events.end_time, candidates.id, candidates.name, candidates.type FROM voting_events
+      JOIN candidates ON candidates.type = voting_events.type
+    `;
   }
 
   async create(data: PostVotingEventDto) {

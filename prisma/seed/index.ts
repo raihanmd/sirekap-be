@@ -40,17 +40,6 @@ async function seedProvinces() {
   }
 }
 
-async function seedCandidatesType() {
-  await prisma.candidatesType.createMany({
-    data: [
-      { name: "DPR" },
-      { name: "DPD" },
-      { name: "PRESIDEN" },
-      { name: "WAKIL_PRESIDEN" },
-    ],
-  });
-}
-
 async function seedRootUser() {
   const data: User = {
     city_id: 3205,
@@ -73,7 +62,6 @@ async function main() {
   await seedProvinces();
   await seedRegencies();
   await seedRootUser();
-  await seedCandidatesType();
 }
 
 main()
