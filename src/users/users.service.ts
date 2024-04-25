@@ -1,7 +1,11 @@
+import { User, UserRole } from "@prisma/client";
+import { WINSTON_MODULE_PROVIDER } from "nest-winston";
+import { Logger } from "winston";
 import * as bcrypt from "bcrypt";
 import { v4 } from "uuid";
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -11,15 +15,14 @@ import { PrismaService } from "../common/prisma/prisma.service";
 import { LoginUserDto, RegisterUserDto, UpdateUserDto } from "./dto";
 import { ProvincesService } from "../provinces/provinces.service";
 import { CitiesService } from "../cities/cities.service";
-import { User, UserRole } from "@prisma/client";
 
 @Injectable()
 export class UsersService {
   constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private readonly prismaService: PrismaService,
     private readonly provincesService: ProvincesService,
     private readonly citiesService: CitiesService,
-    private readonly provincesSevice: ProvincesService,
   ) {}
 
   async register(data: RegisterUserDto) {
@@ -46,6 +49,8 @@ export class UsersService {
 
     data.password = await bcrypt.hash(data.password as string, 10);
     data.token = v4();
+
+    this.logger.info(`Register User: ${data.username}`);
 
     return this.prismaService.user.create({
       data: {
@@ -82,6 +87,8 @@ export class UsersService {
     if (!isMatch) throw new UnauthorizedException("Username or password wrong");
 
     data.token = v4();
+
+    this.logger.info(`Login User: ${user.username}`);
 
     return await this.prismaService.user.update({
       data: {
@@ -148,6 +155,8 @@ export class UsersService {
       user.city_id = data.city_id;
     }
 
+    this.logger.info(`Update User: ${JSON.stringify(user)}`);
+
     return await this.prismaService.user.update({
       where: { id: user.id },
       data: user,
@@ -170,6 +179,8 @@ export class UsersService {
         token: null,
       },
     });
+
+    this.logger.info(`Logout User: ${JSON.stringify(user)}`);
 
     return { success: true };
   }

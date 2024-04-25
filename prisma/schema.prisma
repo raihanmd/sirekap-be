@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL_PROD")
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -18,21 +18,22 @@ enum UserRole {
   REGISTERED_USER
 }
 
-model CandidatesType {
-  name         String         @id @unique @db.VarChar(50)
-  Candidates   Candidates[]
-  VotingEvents VotingEvents[]
-
-  @@map("candidates_type")
+enum CandidatesType {
+  PRESIDEN
+  WAKIL_PRESIDEN
+  DPR
+  DPRD
+  DPD
 }
 
 model Province {
   id   Int    @id @db.UnsignedMediumInt()
   name String @db.VarChar(50)
 
-  city       City[]
-  user       User[]
-  candidates Candidates[]
+  city          City[]
+  user          User[]
+  candidates    Candidates[]
+  voting_events VotingEvents[]
 
   @@map("provinces")
 }
@@ -42,9 +43,10 @@ model City {
   province_id Int    @db.UnsignedMediumInt()
   name        String @db.VarChar(50)
 
-  province   Province     @relation(fields: [province_id], references: [id])
-  user       User[]
-  candidates Candidates[]
+  province      Province       @relation(fields: [province_id], references: [id])
+  user          User[]
+  candidates    Candidates[]
+  voting_events VotingEvents[]
 
   @@map("cities")
 }
@@ -68,43 +70,49 @@ model User {
 }
 
 model PoliticalParties {
-  id         String       @id @default(cuid()) @db.Char(36)
-  name       String       @unique @db.VarChar(50)
-  image      String       @db.VarChar(255)
-  public_id  String       @db.VarChar(255)
+  id        String @id @default(cuid()) @db.Char(36)
+  name      String @unique @db.VarChar(50)
+  image     String @db.VarChar(255)
+  public_id String @db.VarChar(255)
+
   candidates Candidates[]
 
   @@map("political_parties")
 }
 
 model Candidates {
-  id          String @id @default(cuid()) @db.Char(36)
-  party_id    String @db.Char(36)
-  province_id Int    @db.UnsignedMediumInt()
-  city_id     Int    @db.UnsignedMediumInt()
-  name        String @db.VarChar(255)
-  type        String @db.VarChar(50)
-  image       String @db.VarChar(255)
-  public_id   String @db.VarChar(255)
+  id               String         @id @default(cuid()) @db.Char(36)
+  voting_events_id Int
+  party_id         String         @db.Char(36)
+  province_id      Int            @db.UnsignedMediumInt()
+  city_id          Int            @db.UnsignedMediumInt()
+  name             String         @db.VarChar(255)
+  image            String         @db.VarChar(255)
+  public_id        String         @db.VarChar(255)
+  type             CandidatesType
 
-  candidate_type CandidatesType   @relation(fields: [type], references: [name])
-  party          PoliticalParties @relation(fields: [party_id], references: [id])
-  province       Province         @relation(fields: [province_id], references: [id])
-  city           City             @relation(fields: [city_id], references: [id])
-  voting_log     VotingLog[]
+  voting_events VotingEvents     @relation(fields: [voting_events_id], references: [id])
+  party         PoliticalParties @relation(fields: [party_id], references: [id])
+  province      Province         @relation(fields: [province_id], references: [id])
+  city          City             @relation(fields: [city_id], references: [id])
+  voting_log    VotingLog[]
 
-  @@unique([province_id, city_id, name, party_id, type])
+  @@unique([province_id, city_id, party_id, type])
   @@map("candidates")
 }
 
 model VotingEvents {
-  id             Int            @id @default(autoincrement())
-  name           String
-  start_time     Int            @db.Int()
-  end_time       Int            @db.Int()
-  type           String         @db.VarChar(50)
-  candidate_type CandidatesType @relation(fields: [type], references: [name])
-  votes          VotingLog[]
+  id          Int            @id @default(autoincrement())
+  province_id Int            @db.UnsignedMediumInt()
+  city_id     Int            @db.UnsignedMediumInt()
+  start_time  Int            @db.Int()
+  end_time    Int            @db.Int()
+  type        CandidatesType
+
+  province   Province     @relation(fields: [province_id], references: [id])
+  city       City         @relation(fields: [city_id], references: [id])
+  votes      VotingLog[]
+  candidates Candidates[]
 
   @@map("voting_events")
 }

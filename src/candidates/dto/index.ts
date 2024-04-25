@@ -1,11 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-
-export enum CandidatesType {
-  PRESIDEN = "PRESIDEN",
-  WAKIL_PRESIDEN = "WAKIL_PRESIDEN",
-  DPR = "DPR",
-  DPD = "DPD",
-}
+import { CandidatesType } from "@prisma/client";
 export class PostCandidatesDto {
   @ApiProperty({ type: String })
   name!: string;
@@ -60,3 +54,10 @@ export class DeleteCandidatesDto {
   @ApiProperty({ type: String })
   id!: string;
 }
+export type QueryCandidatesParam = {
+  type: CandidatesType;
+
+  page: number;
+
+  size: number;
+};

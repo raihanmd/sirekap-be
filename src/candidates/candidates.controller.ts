@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  ParseEnumPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -33,6 +34,7 @@ import { CandidatesValidation } from "./zod";
 import { Roles } from "../common/role/roles.decorator";
 import { RoleGuard } from "../common/role/role.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { CandidatesType } from "@prisma/client";
 
 @UseGuards(RoleGuard)
 @ApiTags("Candidates")
@@ -50,18 +52,37 @@ export class CandidatesController {
     type: String,
     required: false,
     allowReserved: true,
-    example: "",
+    example: "PRESIDEN",
+  })
+  @ApiQuery({
+    name: "page",
+    type: Number,
+    required: false,
+    allowReserved: true,
+  })
+  @ApiQuery({
+    name: "size",
+    type: Number,
+    required: false,
+    allowReserved: true,
   })
   @Get("/")
-  async getAll(@Query("type") type?: string) {
+  async getAll(
+    @Query("type", new ParseEnumPipe(CandidatesType, { optional: true }))
+    type?: CandidatesType,
+    @Query("page", new ParseIntPipe({ optional: true })) page?: number,
+    @Query("size", new ParseIntPipe({ optional: true })) size?: number,
+  ) {
     const queryReq = {
-      type: type?.toUpperCase(),
+      type: type?.toUpperCase() as CandidatesType,
+      page: page ?? 1,
+      size: size ?? 10,
     };
 
     this.validationService.validate(CandidatesValidation.QUERY, queryReq);
     const res = await this.candidatesService.getAll(queryReq);
 
-    return this.responseService.success(res, 200);
+    return this.responseService.pagination(res.payload, res.meta, 200);
   }
 
   @HttpCode(201)

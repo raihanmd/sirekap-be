@@ -5,27 +5,27 @@ echo "🚀🚀 Preparing your project before committing... 👷🚧"
 
 
 echo "🧽🧽🧽 Formatting with Prettier"
-yarn format || {
-  echo "❌❌❌ Prettier Format Failed. Run yarn format.";
+bun format || {
+  echo "❌❌❌ Prettier Format Failed. Run bun format.";
   false;
 }
 
 
 echo "🧹🧹🧹 Checking ESLint"
-yarn lint || {
+bun lint || {
   echo "🤢🤢🤢 ESLint Check Failed. Make the required change above.";
   false;
 }
 
 
 echo "👷👷👷 Building your project"
-yarn build || {
+bun run build || {
   echo "🏨🏨🏨 Build Failed. Oops building failed checkout what is the problem.";
   false;
 }
 
 echo "🧪🧪🧪 Testing your project 🔬🔬🔬"
-yarn test || {
+bun run test || {
   echo "🧪🧪🧪 Test Failed. Nah man you're didnt that good.";
   false;
 }

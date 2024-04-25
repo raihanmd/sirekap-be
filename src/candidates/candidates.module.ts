@@ -8,10 +8,11 @@ import { CandidatesService } from "./candidates.service";
 import { CandidatesController } from "./candidates.controller";
 import { AuthMiddleware } from "../common/auth/auth.middleware";
 import { CitiesService } from "../cities/cities.service";
+import { VotingsService } from "../votings/votings.service";
 
 @Module({
   controllers: [CandidatesController],
-  providers: [CandidatesService, CitiesService],
+  providers: [CandidatesService, CitiesService, VotingsService],
 })
 export class CandidatesModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
