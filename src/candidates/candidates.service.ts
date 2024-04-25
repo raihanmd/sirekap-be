@@ -1,5 +1,7 @@
+import { WINSTON_MODULE_PROVIDER } from "nest-winston";
+import { Logger } from "winston";
 import { ConfigService } from "@nestjs/config";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { PrismaService } from "../common/prisma/prisma.service";
 import {
@@ -15,6 +17,7 @@ import { CandidatesType } from "@prisma/client";
 @Injectable()
 export class CandidatesService {
   constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private readonly prismaService: PrismaService,
     private readonly citiesService: CitiesService,
     private readonly googleDriveService: GoogleDriveService,
@@ -76,6 +79,8 @@ export class CandidatesService {
         ],
       },
     });
+
+    this.logger.info("Create Candidates: ", JSON.stringify(data));
 
     return this.prismaService.candidates.create({
       data: {
@@ -142,6 +147,8 @@ export class CandidatesService {
       ...(data.type && { type: data.type }),
     };
 
+    this.logger.info("Update Candidates: ", JSON.stringify(updateData));
+
     return this.prismaService.candidates.update({
       where: { id: data.id },
       data: updateData,
@@ -176,6 +183,8 @@ export class CandidatesService {
     await this.prismaService.candidates.delete({
       where: { id: data.id },
     });
+
+    this.logger.info("Delete Candidates: ", JSON.stringify(data));
 
     return { success: true };
   }

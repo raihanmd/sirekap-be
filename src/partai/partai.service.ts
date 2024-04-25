@@ -1,5 +1,8 @@
+import { WINSTON_MODULE_PROVIDER } from "nest-winston";
+import { Logger } from "winston";
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -12,6 +15,7 @@ import { GoogleDriveService } from "../common/google-drive/google-drive.service"
 @Injectable()
 export class PartaiService {
   constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private readonly prismaService: PrismaService,
     private readonly googleDriveService: GoogleDriveService,
     private readonly configService: ConfigService,
@@ -46,6 +50,8 @@ export class PartaiService {
       data.image,
       this.configService.get("GOOGLE_DRIVE_PARTAI_FOLDER_ID") as string,
     );
+
+    this.logger.info("Create Partai: ", JSON.stringify(data));
 
     return await this.prismaService.politicalParties.create({
       data: {
@@ -84,6 +90,8 @@ export class PartaiService {
       updateData = { ...updateData, name: data.name };
     }
 
+    this.logger.info("Update Partai: ", JSON.stringify(data));
+
     return await this.prismaService.politicalParties.update({
       where: {
         id: data.id,
@@ -106,6 +114,8 @@ export class PartaiService {
         id: data.id,
       },
     });
+
+    this.logger.info("Delete Partai: ", JSON.stringify(data));
 
     return { success: true };
   }
