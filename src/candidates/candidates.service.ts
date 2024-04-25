@@ -10,6 +10,7 @@ import {
 } from "./dto";
 import { CitiesService } from "../cities/cities.service";
 import { GoogleDriveService } from "../common/google-drive/google-drive.service";
+import { CandidatesType } from "@prisma/client";
 
 @Injectable()
 export class CandidatesService {
@@ -20,7 +21,7 @@ export class CandidatesService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getAll(data?: QueryCandidatesParam) {
+  async getAll(data?: QueryCandidatesParam | any) {
     return this.prismaService.candidates.findMany({
       select: {
         id: true,
@@ -43,7 +44,7 @@ export class CandidatesService {
           },
         },
       },
-      where: { type: data?.type },
+      where: data,
       orderBy: {
         type: "asc",
       },
@@ -61,9 +62,25 @@ export class CandidatesService {
       city_id: data.city_id,
     });
 
+    const votingEvents = await this.prismaService.votingEvents.findFirst({
+      where: {
+        AND: [
+          {
+            type:
+              data.type === CandidatesType.WAKIL_PRESIDEN
+                ? "PRESIDEN"
+                : data.type,
+            province_id: data.province_id,
+            city_id: data.city_id,
+          },
+        ],
+      },
+    });
+
     return this.prismaService.candidates.create({
       data: {
         ...data,
+        voting_events_id: votingEvents?.id as number,
         image: image?.thumbnail_link as string,
         public_id: image?.id as string,
       },
