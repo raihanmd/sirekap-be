@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  ParseEnumPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -51,16 +52,37 @@ export class CandidatesController {
     type: String,
     required: false,
     allowReserved: true,
-    example: "",
+    example: "PRESIDEN",
+  })
+  @ApiQuery({
+    name: "page",
+    type: Number,
+    required: false,
+    allowReserved: true,
+  })
+  @ApiQuery({
+    name: "size",
+    type: Number,
+    required: false,
+    allowReserved: true,
   })
   @Get("/")
-  async getAll(@Query("type") type?: CandidatesType) {
-    const queryReq = { type: type?.toUpperCase() as CandidatesType };
+  async getAll(
+    @Query("type", new ParseEnumPipe(CandidatesType, { optional: true }))
+    type?: CandidatesType,
+    @Query("page", new ParseIntPipe({ optional: true })) page?: number,
+    @Query("size", new ParseIntPipe({ optional: true })) size?: number,
+  ) {
+    const queryReq = {
+      type: type?.toUpperCase() as CandidatesType,
+      page: page ?? 1,
+      size: size ?? 10,
+    };
 
     this.validationService.validate(CandidatesValidation.QUERY, queryReq);
     const res = await this.candidatesService.getAll(queryReq);
 
-    return this.responseService.success(res, 200);
+    return this.responseService.pagination(res.payload, res.meta, 200);
   }
 
   @HttpCode(201)

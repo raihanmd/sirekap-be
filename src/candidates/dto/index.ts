@@ -55,5 +55,9 @@ export class DeleteCandidatesDto {
   id!: string;
 }
 export type QueryCandidatesParam = {
-  type?: CandidatesType;
+  type: CandidatesType;
+
+  page: number;
+
+  size: number;
 };

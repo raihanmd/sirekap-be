@@ -97,7 +97,7 @@ model Candidates {
   city          City             @relation(fields: [city_id], references: [id])
   voting_log    VotingLog[]
 
-  @@unique([province_id, city_id, name, party_id, type])
+  @@unique([province_id, city_id, party_id, type])
   @@map("candidates")
 }
 

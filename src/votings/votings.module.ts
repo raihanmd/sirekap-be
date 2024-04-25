@@ -8,11 +8,10 @@ import {
 import { VotingsService } from "./votings.service";
 import { VotingsController } from "./votings.controller";
 import { AuthMiddleware } from "../common/auth/auth.middleware";
-import { CandidatesService } from "../candidates/candidates.service";
 
 @Module({
   controllers: [VotingsController],
-  providers: [VotingsService, CandidatesService],
+  providers: [VotingsService],
 })
 export class VotingsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

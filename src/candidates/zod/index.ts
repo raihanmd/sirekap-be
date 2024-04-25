@@ -62,6 +62,8 @@ export class CandidatesValidation {
 
   static QUERY = z.object({
     type: z.nativeEnum(CandidatesType).optional(),
+    size: z.number(),
+    page: z.number(),
   });
 
   static PATCH = z

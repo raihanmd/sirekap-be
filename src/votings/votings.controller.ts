@@ -4,7 +4,6 @@ import { ApiTags } from "@nestjs/swagger";
 import { VotingsService } from "./votings.service";
 import { RoleGuard } from "../common/role/role.guard";
 import { ResponseService } from "../common/response/response.service";
-import { ValidationService } from "../common/validation/validation.service";
 
 @UseGuards(RoleGuard)
 @ApiTags("Votings")
@@ -12,7 +11,6 @@ import { ValidationService } from "../common/validation/validation.service";
 export class VotingsController {
   constructor(
     private readonly votingsService: VotingsService,
-    private readonly validationService: ValidationService,
     private readonly responseService: ResponseService,
   ) {}
 

@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { Injectable, NotFoundException } from "@nestjs/common";
 
 import { PrismaService } from "../common/prisma/prisma.service";
@@ -10,7 +11,7 @@ type QueryCityParam = {
 export class CitiesService {
   constructor(private readonly prismaService: PrismaService) {}
   async getCity(queryReq: QueryCityParam) {
-    const filters: Array<any> = [];
+    const filters: Prisma.CityWhereInput[] = [];
 
     if (queryReq.province_id) {
       filters.push({
