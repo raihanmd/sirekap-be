@@ -13,23 +13,11 @@ export class VotingsService {
     private readonly candidatesService: CandidatesService,
   ) {}
 
-  async getAll() {
-    const presiden = await this.candidatesService.getAll({
-      OR: [{ type: "PRESIDEN" }, { type: "WAKIL_PRESIDEN" }],
-    });
-    const dpr = await this.candidatesService.getAll({ type: "DPR" });
-    const dpd = await this.candidatesService.getAll({ type: "DPD" });
-
-    const votingEvents: any = await this.prismaService.votingEvents.findMany({
-      orderBy: {
-        type: "asc",
+  getAll() {
+    return this.prismaService.votingEvents.findMany({
+      include: {
+        candidates: true,
       },
     });
-
-    votingEvents[0].candidates = dpd;
-    votingEvents[1].candidates = dpr;
-    votingEvents[2].candidates = presiden;
-
-    return votingEvents;
   }
 }

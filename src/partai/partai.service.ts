@@ -1,3 +1,4 @@
+import { PoliticalParties } from "@prisma/client";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
 import {
@@ -51,7 +52,7 @@ export class PartaiService {
       this.configService.get("GOOGLE_DRIVE_PARTAI_FOLDER_ID") as string,
     );
 
-    this.logger.info("Create Partai: ", JSON.stringify(data));
+    this.logger.info(`Create Partai: ${data.name}`);
 
     return await this.prismaService.politicalParties.create({
       data: {
@@ -69,7 +70,7 @@ export class PartaiService {
   async update(data: UpdatePartaiDto) {
     const partai = await this.getById(data.id);
 
-    let updateData = {};
+    let updateData: Partial<PoliticalParties> = {};
 
     if (data.image) {
       await this.googleDriveService.delete(partai.public_id);
@@ -81,8 +82,8 @@ export class PartaiService {
 
       updateData = {
         ...updateData,
-        public_id: image.id,
-        image: image.thumbnail_link,
+        public_id: image.id as string,
+        image: image.thumbnail_link as string,
       };
     }
 
@@ -90,7 +91,7 @@ export class PartaiService {
       updateData = { ...updateData, name: data.name };
     }
 
-    this.logger.info("Update Partai: ", JSON.stringify(data));
+    this.logger.info(`Update Partai: ${partai.name}`);
 
     return await this.prismaService.politicalParties.update({
       where: {
@@ -115,7 +116,7 @@ export class PartaiService {
       },
     });
 
-    this.logger.info("Delete Partai: ", JSON.stringify(data));
+    this.logger.info(`Delete Partai: ${partai.name}`);
 
     return { success: true };
   }

@@ -50,7 +50,7 @@ export class UsersService {
     data.password = await bcrypt.hash(data.password as string, 10);
     data.token = v4();
 
-    this.logger.info("Register User: ", JSON.stringify(data.username));
+    this.logger.info(`Register User: ${data.username}`);
 
     return this.prismaService.user.create({
       data: {
@@ -88,7 +88,7 @@ export class UsersService {
 
     data.token = v4();
 
-    this.logger.info("Login User: ", JSON.stringify(data.username));
+    this.logger.info(`Login User: ${user.username}`);
 
     return await this.prismaService.user.update({
       data: {
@@ -155,7 +155,7 @@ export class UsersService {
       user.city_id = data.city_id;
     }
 
-    this.logger.info("Update User: ", JSON.stringify(user.username));
+    this.logger.info(`Update User: ${JSON.stringify(user)}`);
 
     return await this.prismaService.user.update({
       where: { id: user.id },
@@ -180,7 +180,7 @@ export class UsersService {
       },
     });
 
-    this.logger.info("Logout User: ", JSON.stringify(user.username));
+    this.logger.info(`Logout User: ${JSON.stringify(user)}`);
 
     return { success: true };
   }

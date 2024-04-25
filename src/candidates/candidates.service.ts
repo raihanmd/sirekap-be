@@ -1,3 +1,4 @@
+import { Candidates, CandidatesType } from "@prisma/client";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
 import { ConfigService } from "@nestjs/config";
@@ -12,7 +13,6 @@ import {
 } from "./dto";
 import { CitiesService } from "../cities/cities.service";
 import { GoogleDriveService } from "../common/google-drive/google-drive.service";
-import { CandidatesType } from "@prisma/client";
 
 @Injectable()
 export class CandidatesService {
@@ -65,27 +65,18 @@ export class CandidatesService {
       city_id: data.city_id,
     });
 
-    const votingEvents = await this.prismaService.votingEvents.findFirst({
-      where: {
-        AND: [
-          {
-            type:
-              data.type === CandidatesType.WAKIL_PRESIDEN
-                ? "PRESIDEN"
-                : data.type,
-            province_id: data.province_id,
-            city_id: data.city_id,
-          },
-        ],
-      },
+    const votingEventsId = await this.getVotingEventsId({
+      type: data.type,
+      province_id: data.province_id,
+      city_id: data.city_id,
     });
 
-    this.logger.info("Create Candidates: ", JSON.stringify(data));
+    this.logger.info(`Create Candidates: ${data.name}`);
 
     return this.prismaService.candidates.create({
       data: {
         ...data,
-        voting_events_id: votingEvents?.id as number,
+        voting_events_id: votingEventsId,
         image: image?.thumbnail_link as string,
         public_id: image?.id as string,
       },
@@ -115,14 +106,7 @@ export class CandidatesService {
   async update(data: PatchCandidatesDto) {
     const candidate = await this.getById(data.id);
 
-    let updateData = {};
-
-    if (data.province_id !== undefined || data.city_id !== undefined) {
-      await this.citiesService.isValidCity({
-        province_id: data.province_id,
-        city_id: data.city_id,
-      });
-    }
+    let updateData: Partial<Candidates> = {};
 
     if (data.image) {
       await this.googleDriveService.delete(candidate.public_id);
@@ -133,8 +117,23 @@ export class CandidatesService {
       );
 
       updateData = {
-        public_id: image.id,
-        image: image.thumbnail_link,
+        public_id: image.id as string,
+        image: image.thumbnail_link as string,
+      };
+    }
+
+    if (data.type) {
+      const votingEventsId = await this.getVotingEventsId({
+        type: data.type,
+        province_id: data.province_id as number,
+        city_id: data.city_id as number,
+      });
+
+      updateData = {
+        type: data.type,
+        voting_events_id: votingEventsId,
+        province_id: data.province_id,
+        city_id: data.city_id,
       };
     }
 
@@ -142,12 +141,9 @@ export class CandidatesService {
       ...updateData,
       ...(data.name && { name: data.name }),
       ...(data.party_id && { party_id: data.party_id }),
-      ...(data.province_id && { province_id: data.province_id }),
-      ...(data.city_id && { city_id: data.city_id }),
-      ...(data.type && { type: data.type }),
     };
 
-    this.logger.info("Update Candidates: ", JSON.stringify(updateData));
+    this.logger.info(`Update Candidates: ${candidate.name}`);
 
     return this.prismaService.candidates.update({
       where: { id: data.id },
@@ -184,7 +180,7 @@ export class CandidatesService {
       where: { id: data.id },
     });
 
-    this.logger.info("Delete Candidates: ", JSON.stringify(data));
+    this.logger.info(`Delete Candidates: ${candidate.name}`);
 
     return { success: true };
   }
@@ -199,5 +195,32 @@ export class CandidatesService {
     }
 
     return candidate;
+  }
+
+  async getVotingEventsId({
+    type,
+    province_id,
+    city_id,
+  }: Pick<Candidates, "type" | "province_id" | "city_id">) {
+    const votingEvents = await this.prismaService.votingEvents.findFirst({
+      where: {
+        AND: [
+          {
+            type: type === CandidatesType.WAKIL_PRESIDEN ? "PRESIDEN" : type,
+            province_id: province_id,
+            city_id: city_id,
+          },
+        ],
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!votingEvents) {
+      throw new NotFoundException("Voting Events not found");
+    }
+
+    return votingEvents.id;
   }
 }
