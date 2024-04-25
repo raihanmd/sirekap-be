@@ -232,7 +232,7 @@ export class CandidatesService {
     return candidate;
   }
 
-  prettyResponse(data:  Prisma.CandidatesWhereInput) {
+  prettyResponse(data: Prisma.CandidatesWhereInput) {
     return {
       id: data.id,
       name: data.name,
