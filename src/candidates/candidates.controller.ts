@@ -21,6 +21,8 @@ import {
   ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { CandidatesType } from "@prisma/client";
 
 import { CandidatesService } from "./candidates.service";
 import { ResponseService } from "../common/response/response.service";
@@ -33,8 +35,7 @@ import { ValidationService } from "../common/validation/validation.service";
 import { CandidatesValidation } from "./zod";
 import { Roles } from "../common/role/roles.decorator";
 import { RoleGuard } from "../common/role/role.guard";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { CandidatesType } from "@prisma/client";
+import { JwtGuard } from "../auth/guards/jwt.guard";
 
 @UseGuards(RoleGuard)
 @ApiTags("Candidates")
@@ -91,6 +92,7 @@ export class CandidatesController {
   @ApiOperation({ summary: "Authorization Required" })
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("image"))
+  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @Post("/")
   async create(
@@ -119,6 +121,7 @@ export class CandidatesController {
   @ApiOperation({ summary: "Authorization Required" })
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("image"))
+  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @Patch("/")
   async update(
@@ -147,6 +150,7 @@ export class CandidatesController {
   @ApiBearerAuth()
   @ApiBody({ type: DeleteCandidatesDto })
   @ApiOperation({ summary: "Authorization Required" })
+  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @Delete("/")
   async delete(@Body() deleteReq: DeleteCandidatesDto) {

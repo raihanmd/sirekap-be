@@ -9,6 +9,7 @@ import { User } from "@prisma/client";
 describe("UserController", () => {
   let app: INestApplication;
   let testService: TestService;
+  let jwt: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -26,14 +27,14 @@ describe("UserController", () => {
     await app.close();
   });
 
-  describe("POST /v1/users/register", () => {
+  describe("POST /v1/auth/register", () => {
     beforeEach(async () => {
       await testService.deleteAll();
     });
 
     it("should be rejected if request is invalid", async () => {
       const response = await request(app.getHttpServer())
-        .post("/v1/users/register")
+        .post("/v1/auth/register")
         .send({
           username: "",
           password: "",
@@ -49,7 +50,7 @@ describe("UserController", () => {
 
     it("should be able to register", async () => {
       const response = await request(app.getHttpServer())
-        .post("/v1/users/register")
+        .post("/v1/auth/register")
         .send({
           username: "test",
           password: "testtest",
@@ -60,14 +61,13 @@ describe("UserController", () => {
         });
 
       expect(response.status).toBe(201);
-      expect(response.body.payload.username).toBe("test");
       expect(response.body.payload.token).toBeDefined();
     });
 
     it("should be rejected if username already exists", async () => {
       await testService.createUser();
       const response = await request(app.getHttpServer())
-        .post("/v1/users/register")
+        .post("/v1/auth/register")
         .send({
           username: "test",
           password: "testtest",
@@ -83,7 +83,7 @@ describe("UserController", () => {
 
     it("should be rejected if province not found", async () => {
       const response = await request(app.getHttpServer())
-        .post("/v1/users/register")
+        .post("/v1/auth/register")
         .send({
           username: "test",
           password: "testtest",
@@ -99,7 +99,7 @@ describe("UserController", () => {
 
     it("should be rejected if city not found", async () => {
       const response = await request(app.getHttpServer())
-        .post("/v1/users/register")
+        .post("/v1/auth/register")
         .send({
           username: "test",
           password: "testtest",
@@ -114,7 +114,7 @@ describe("UserController", () => {
     });
   });
 
-  describe("POST /v1/users/login", () => {
+  describe("POST /v1/auth/login", () => {
     beforeEach(async () => {
       await testService.deleteAll();
       await testService.createUser();
@@ -122,7 +122,7 @@ describe("UserController", () => {
 
     it("should be rejected if request is invalid", async () => {
       const response = await request(app.getHttpServer())
-        .post("/v1/users/login")
+        .post("/v1/auth/login")
         .send({
           username: "",
           password: "",
@@ -134,26 +134,24 @@ describe("UserController", () => {
 
     it("should be reject if username or password wrong", async () => {
       const response = await request(app.getHttpServer())
-        .post("/v1/users/login")
+        .post("/v1/auth/login")
         .send({
           username: "test",
           password: "wrong",
         });
 
       expect(response.status).toBe(401);
-      expect(response.body).toBeDefined();
     });
 
     it("should be able to login", async () => {
       const response = await request(app.getHttpServer())
-        .post("/v1/users/login")
+        .post("/v1/auth/login")
         .send({
           username: "test",
           password: "test",
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.payload.username).toBe("test");
       expect(response.body.payload.token).toBeDefined();
     });
   });
@@ -161,7 +159,7 @@ describe("UserController", () => {
   describe("GET /v1/users/current", () => {
     beforeEach(async () => {
       await testService.deleteAll();
-      await testService.createUser();
+      jwt = await testService.createUser();
     });
 
     it("should be rejected if token is invalid", async () => {
@@ -170,13 +168,12 @@ describe("UserController", () => {
         .set("Authorization", "wrong");
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toBeDefined();
     });
 
     it("should be able to get user", async () => {
       const response = await request(app.getHttpServer())
         .get("/v1/users/current")
-        .set("Authorization", "Bearer test");
+        .set("Authorization", `Bearer ${jwt}`);
 
       expect(response.status).toBe(200);
       expect(response.body.payload.username).toBe("test");
@@ -186,13 +183,13 @@ describe("UserController", () => {
   describe("PATCH /v1/users/current", () => {
     beforeEach(async () => {
       await testService.deleteAll();
-      await testService.createUser();
+      jwt = await testService.createUser();
     });
 
     it("should be rejected if request is invalid", async () => {
       const response = await request(app.getHttpServer())
         .patch("/v1/users/current")
-        .set("Authorization", "Bearer test")
+        .set("Authorization", `Bearer ${jwt}`)
         .send({
           username: "",
           password: "",
@@ -209,7 +206,7 @@ describe("UserController", () => {
     it("should be able update full_name", async () => {
       const response = await request(app.getHttpServer())
         .patch("/v1/users/current")
-        .set("Authorization", "Bearer test")
+        .set("Authorization", `Bearer ${jwt}`)
         .send({
           full_name: "test updated",
         });
@@ -221,7 +218,7 @@ describe("UserController", () => {
     it("should be able update password", async () => {
       let response = await request(app.getHttpServer())
         .patch("/v1/users/current")
-        .set("Authorization", "Bearer test")
+        .set("Authorization", `Bearer ${jwt}`)
         .send({
           password: "updatedpassword",
         });
@@ -230,7 +227,7 @@ describe("UserController", () => {
       expect(response.body.payload.username).toBe("test");
 
       response = await request(app.getHttpServer())
-        .post("/v1/users/login")
+        .post("/v1/auth/login")
         .send({
           username: "test",
           password: "updatedpassword",
@@ -244,7 +241,7 @@ describe("UserController", () => {
   describe("DELETE /v1/users/current", () => {
     beforeEach(async () => {
       await testService.deleteAll();
-      await testService.createUser();
+      jwt = await testService.createUser();
     });
 
     it("should be rejected if token is invalid", async () => {
@@ -253,13 +250,12 @@ describe("UserController", () => {
         .set("Authorization", "wrong");
 
       expect(response.status).toBe(401);
-      expect(response.body.error).toBeDefined();
     });
 
     it("should be able to logout user", async () => {
       const response = await request(app.getHttpServer())
         .delete("/v1/users/current")
-        .set("Authorization", "Bearer test");
+        .set("Authorization", `Bearer ${jwt}`);
 
       expect(response.status).toBe(200);
       expect(response.body.payload.success).toBe(true);

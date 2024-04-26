@@ -26,6 +26,7 @@ import { RoleGuard } from "../common/role/role.guard";
 import { Roles } from "../common/role/roles.decorator";
 import { DeletePartaiDto, PostPartaiDto, UpdatePartaiDto } from "./dto";
 import { PartaiValidation } from "./zod";
+import { JwtGuard } from "../auth/guards/jwt.guard";
 
 @UseGuards(RoleGuard)
 @ApiTags("Partai")
@@ -49,6 +50,7 @@ export class PartaiController {
   @ApiBody({ type: PostPartaiDto })
   @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "Authorization Required" })
+  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @UseInterceptors(FileInterceptor("image"))
   @Post("/")
@@ -71,6 +73,7 @@ export class PartaiController {
   @ApiBody({ type: UpdatePartaiDto })
   @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "Authorization Required" })
+  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @UseInterceptors(FileInterceptor("image"))
   @Patch("/")
@@ -92,6 +95,7 @@ export class PartaiController {
   @ApiBearerAuth()
   @ApiBody({ type: DeletePartaiDto })
   @ApiOperation({ summary: "Authorization Required" })
+  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @Delete("/")
   async delete(@Body() deleteReq: DeletePartaiDto) {

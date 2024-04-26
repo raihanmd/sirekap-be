@@ -3,10 +3,7 @@ import { BaseResponse } from "../../common/response/base-response";
 
 class UserPayload {
   @ApiProperty({ type: "string" })
-  username?: string;
-
-  @ApiProperty({ type: "string" })
-  token?: string;
+  token!: string;
 }
 
 export class RegisterResponse extends BaseResponse<UserPayload> {
