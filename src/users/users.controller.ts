@@ -5,27 +5,20 @@ import {
   Get,
   HttpCode,
   Patch,
-  Post,
+  Req,
   UseGuards,
 } from "@nestjs/common";
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from "@nestjs/swagger";
+import { Request } from "express";
+import { User } from "@prisma/client";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 import { UsersService } from "./users.service";
 import { RoleGuard } from "../common/role/role.guard";
-import { Auth } from "../common/auth/auth.decorator";
-// import { Roles } from "src/role/roles.decorator";
 import { ValidationService } from "../common/validation/validation.service";
 import { ResponseService } from "../common/response/response.service";
-import { LoginUserDto, RegisterUserDto, UpdateUserDto } from "./dto";
-import { LoginResponse, RegisterResponse } from "./response";
+import { JwtGuard } from "../auth/guards/jwt.guard";
+import { UpdateUserDto } from "./dto";
 import { UsersValidation } from "./zod";
-import { User } from "@prisma/client";
 
 @UseGuards(RoleGuard)
 @ApiTags("Users")
@@ -37,32 +30,14 @@ export class UsersController {
     private readonly responseService: ResponseService,
   ) {}
 
-  @HttpCode(201)
-  @ApiBody({ type: RegisterUserDto })
-  @ApiOkResponse({ type: RegisterResponse })
-  @Post("/register")
-  async register(@Body() loginReq: RegisterUserDto) {
-    this.validationService.validate(UsersValidation.RESGISTER, loginReq);
-    const res = await this.usersService.register(loginReq);
-    return this.responseService.success(res, 201);
-  }
-
-  @HttpCode(200)
-  @ApiBody({ type: LoginUserDto })
-  @ApiOkResponse({ type: LoginResponse })
-  @Post("/login")
-  async login(@Body() loginReq: LoginUserDto) {
-    this.validationService.validate(UsersValidation.LOGIN, loginReq);
-    const res = await this.usersService.login(loginReq);
-    return this.responseService.success(res, 200);
-  }
-
   @HttpCode(200)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Authorization Required" })
+  @UseGuards(JwtGuard)
   @Get("/current")
-  async current(@Auth() user: User) {
-    const res = await this.usersService.getUserById(user.id);
+  async current(@Req() req: Request) {
+    const { id } = req.user as User;
+    const res = await this.usersService.getUserById(id);
     return this.responseService.success(res, 200);
   }
 
@@ -70,19 +45,21 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiBody({ type: UpdateUserDto })
   @ApiOperation({ summary: "Authorization Required" })
+  @UseGuards(JwtGuard)
   @Patch("/current")
-  async update(@Auth() user: User, @Body() updateReq: UpdateUserDto) {
+  async update(@Req() req: Request, @Body() updateReq: UpdateUserDto) {
     this.validationService.validate(UsersValidation.UPDATE, updateReq);
-    const res = await this.usersService.update(user, updateReq);
+    const res = await this.usersService.update(req.user as User, updateReq);
     return this.responseService.success(res, 200);
   }
 
   @HttpCode(200)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Authorization Required" })
+  @UseGuards(JwtGuard)
   @Delete("/current")
-  async logout(@Auth() user: User) {
-    const res = await this.usersService.logout(user);
+  async logout(@Req() req: Request) {
+    const res = await this.usersService.logout(req.user as User);
     return this.responseService.success(res, 200);
   }
 }
