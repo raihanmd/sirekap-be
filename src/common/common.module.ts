@@ -5,6 +5,7 @@ import { Global, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { WinstonModule } from "nest-winston";
 
+import { JwtGuard } from "../auth/guards/jwt.guard";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ValidationModule } from "./validation/validation.module";
 import { ResponseModule } from "./response/response.module";
@@ -52,6 +53,10 @@ import { GoogleDriveModule } from "./google-drive/google-drive.module";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtGuard,
     },
     {
       provide: APP_FILTER,

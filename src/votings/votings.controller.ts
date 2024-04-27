@@ -1,12 +1,10 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { Controller, Get } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
 import { VotingsService } from "./votings.service";
 import { ResponseService } from "../common/response/response.service";
-import { JwtGuard } from "../auth/guards/jwt.guard";
 import { Public } from "../common/decorators/public.decorator";
 
-@UseGuards(JwtGuard)
 @ApiTags("Votings")
 @Controller("/v1/votings")
 export class VotingsController {

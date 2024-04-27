@@ -7,7 +7,6 @@ import {
   Patch,
   Post,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import {
@@ -20,7 +19,6 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 
 import { PartaiService } from "./partai.service";
-import { JwtGuard } from "../auth/guards/jwt.guard";
 import { ResponseService } from "../common/response/response.service";
 import { ValidationService } from "../common/validation/validation.service";
 import { Public } from "../common/decorators/public.decorator";
@@ -28,8 +26,6 @@ import { Roles } from "../common/decorators/roles.decorator";
 import { DeletePartaiDto, PostPartaiDto, UpdatePartaiDto } from "./dto";
 import { PartaiValidation } from "./zod";
 
-@UseGuards(JwtGuard)
-// @UseGuards(RoleGuard)
 @ApiTags("Partai")
 @Controller("/v1/partai")
 export class PartaiController {

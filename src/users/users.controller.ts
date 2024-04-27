@@ -6,7 +6,6 @@ import {
   HttpCode,
   Patch,
   Req,
-  UseGuards,
 } from "@nestjs/common";
 import { Request } from "express";
 import { User } from "@prisma/client";
@@ -15,11 +14,9 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
 import { ValidationService } from "../common/validation/validation.service";
 import { ResponseService } from "../common/response/response.service";
-import { JwtGuard } from "../auth/guards/jwt.guard";
 import { UpdateUserDto } from "./dto";
 import { UsersValidation } from "./zod";
 
-@UseGuards(JwtGuard)
 @ApiTags("Users")
 @Controller("/v1/users")
 export class UsersController {

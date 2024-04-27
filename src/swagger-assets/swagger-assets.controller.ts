@@ -2,9 +2,12 @@ import { Controller, Get, NotFoundException, Res } from "@nestjs/common";
 import { Response } from "express";
 import { ApiExcludeController } from "@nestjs/swagger";
 
+import { Public } from "../common/decorators/public.decorator";
+
 @ApiExcludeController()
 @Controller("/v1")
 export class SwaggerAssetsController {
+  @Public()
   @Get("/swagger-ui.css")
   async getSwaggerCss(@Res() res: Response) {
     try {
@@ -21,6 +24,7 @@ export class SwaggerAssetsController {
     }
   }
 
+  @Public()
   @Get("/swagger-ui-standalone-preset.js")
   async getSwaggerStandAlone(@Res() res: Response) {
     try {
@@ -37,6 +41,7 @@ export class SwaggerAssetsController {
     }
   }
 
+  @Public()
   @Get("/swagger-ui-bundle.js")
   async getSwaggerBundle(@Res() res: Response) {
     try {

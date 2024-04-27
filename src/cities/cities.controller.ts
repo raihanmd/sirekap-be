@@ -4,6 +4,7 @@ import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { CitiesService } from "./cities.service";
 import { ResponseService } from "../common/response/response.service";
 import { ValidationService } from "../common/validation/validation.service";
+import { Public } from "../common/decorators/public.decorator";
 import { CitiesValidation } from "./zod";
 
 @ApiTags("Cities")
@@ -30,6 +31,7 @@ export class CitiesController {
     allowReserved: true,
     example: "",
   })
+  @Public()
   @Get("/")
   async getAll(
     @Query("province_id", new ParseIntPipe({ optional: true }))

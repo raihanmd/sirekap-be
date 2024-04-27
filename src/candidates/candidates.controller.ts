@@ -10,7 +10,6 @@ import {
   Post,
   Query,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import {
@@ -35,9 +34,7 @@ import { ValidationService } from "../common/validation/validation.service";
 import { CandidatesValidation } from "./zod";
 import { Roles } from "../common/decorators/roles.decorator";
 import { Public } from "../common/decorators/public.decorator";
-import { JwtGuard } from "../auth/guards/jwt.guard";
 
-@UseGuards(JwtGuard)
 @ApiTags("Candidates")
 @Controller("/v1/candidates")
 export class CandidatesController {
