@@ -3,6 +3,7 @@ import { ApiTags } from "@nestjs/swagger";
 
 import { ProvincesService } from "./provinces.service";
 import { ResponseService } from "../common/response/response.service";
+import { Public } from "../common/decorators/public.decorator";
 
 @ApiTags("Provinces")
 @Controller("/v1/provinces")
@@ -13,7 +14,8 @@ export class ProvincesController {
   ) {}
 
   @HttpCode(200)
-  @Get()
+  @Public()
+  @Get("/")
   async getAll() {
     const res = await this.provincesService.getAll();
     return this.responseService.success(res, 200);

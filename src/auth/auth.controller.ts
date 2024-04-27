@@ -5,6 +5,7 @@ import { AuthValidation } from "./zod";
 import { LoginUserDto, RegisterUserDto } from "./dto";
 import { LoginResponse, RegisterResponse } from "./response";
 import { AuthService } from "./auth.service";
+import { Public } from "../common/decorators/public.decorator";
 import { ValidationService } from "../common/validation/validation.service";
 import { ResponseService } from "../common/response/response.service";
 
@@ -20,6 +21,7 @@ export class AuthController {
   @HttpCode(201)
   @ApiBody({ type: RegisterUserDto })
   @ApiOkResponse({ type: RegisterResponse })
+  @Public()
   @Post("/register")
   async register(@Body() loginReq: RegisterUserDto) {
     this.validationService.validate(AuthValidation.RESGISTER, loginReq);
@@ -30,6 +32,7 @@ export class AuthController {
   @HttpCode(200)
   @ApiBody({ type: LoginUserDto })
   @ApiOkResponse({ type: LoginResponse })
+  @Public()
   @Post("/login")
   async login(@Body() loginReq: LoginUserDto) {
     this.validationService.validate(AuthValidation.LOGIN, loginReq);
