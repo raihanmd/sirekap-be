@@ -13,14 +13,13 @@ import { User } from "@prisma/client";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 import { UsersService } from "./users.service";
-import { RoleGuard } from "../common/role/role.guard";
 import { ValidationService } from "../common/validation/validation.service";
 import { ResponseService } from "../common/response/response.service";
 import { JwtGuard } from "../auth/guards/jwt.guard";
 import { UpdateUserDto } from "./dto";
 import { UsersValidation } from "./zod";
 
-@UseGuards(RoleGuard)
+@UseGuards(JwtGuard)
 @ApiTags("Users")
 @Controller("/v1/users")
 export class UsersController {
@@ -33,7 +32,6 @@ export class UsersController {
   @HttpCode(200)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Authorization Required" })
-  @UseGuards(JwtGuard)
   @Get("/current")
   async current(@Req() req: Request) {
     const { id } = req.user as User;
@@ -45,7 +43,6 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiBody({ type: UpdateUserDto })
   @ApiOperation({ summary: "Authorization Required" })
-  @UseGuards(JwtGuard)
   @Patch("/current")
   async update(@Req() req: Request, @Body() updateReq: UpdateUserDto) {
     this.validationService.validate(UsersValidation.UPDATE, updateReq);
@@ -56,7 +53,6 @@ export class UsersController {
   @HttpCode(200)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Authorization Required" })
-  @UseGuards(JwtGuard)
   @Delete("/current")
   async logout(@Req() req: Request) {
     const res = await this.usersService.logout(req.user as User);

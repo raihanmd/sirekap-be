@@ -33,11 +33,11 @@ import {
 } from "./dto";
 import { ValidationService } from "../common/validation/validation.service";
 import { CandidatesValidation } from "./zod";
-import { Roles } from "../common/role/roles.decorator";
-import { RoleGuard } from "../common/role/role.guard";
+import { Roles } from "../common/decorators/roles.decorator";
+import { Public } from "../common/decorators/public.decorator";
 import { JwtGuard } from "../auth/guards/jwt.guard";
 
-@UseGuards(RoleGuard)
+@UseGuards(JwtGuard)
 @ApiTags("Candidates")
 @Controller("/v1/candidates")
 export class CandidatesController {
@@ -67,6 +67,7 @@ export class CandidatesController {
     required: false,
     allowReserved: true,
   })
+  @Public()
   @Get("/")
   async getAll(
     @Query("type", new ParseEnumPipe(CandidatesType, { optional: true }))
@@ -92,7 +93,6 @@ export class CandidatesController {
   @ApiOperation({ summary: "Authorization Required" })
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("image"))
-  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @Post("/")
   async create(
@@ -121,7 +121,6 @@ export class CandidatesController {
   @ApiOperation({ summary: "Authorization Required" })
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("image"))
-  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @Patch("/")
   async update(
@@ -150,7 +149,6 @@ export class CandidatesController {
   @ApiBearerAuth()
   @ApiBody({ type: DeleteCandidatesDto })
   @ApiOperation({ summary: "Authorization Required" })
-  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @Delete("/")
   async delete(@Body() deleteReq: DeleteCandidatesDto) {

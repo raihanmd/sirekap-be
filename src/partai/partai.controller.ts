@@ -20,15 +20,16 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 
 import { PartaiService } from "./partai.service";
+import { JwtGuard } from "../auth/guards/jwt.guard";
 import { ResponseService } from "../common/response/response.service";
 import { ValidationService } from "../common/validation/validation.service";
-import { RoleGuard } from "../common/role/role.guard";
-import { Roles } from "../common/role/roles.decorator";
+import { Public } from "../common/decorators/public.decorator";
+import { Roles } from "../common/decorators/roles.decorator";
 import { DeletePartaiDto, PostPartaiDto, UpdatePartaiDto } from "./dto";
 import { PartaiValidation } from "./zod";
-import { JwtGuard } from "../auth/guards/jwt.guard";
 
-@UseGuards(RoleGuard)
+@UseGuards(JwtGuard)
+// @UseGuards(RoleGuard)
 @ApiTags("Partai")
 @Controller("/v1/partai")
 export class PartaiController {
@@ -39,6 +40,7 @@ export class PartaiController {
   ) {}
 
   @HttpCode(200)
+  @Public()
   @Get("/")
   async getAll() {
     const res = await this.partaiService.getAll();
@@ -50,7 +52,6 @@ export class PartaiController {
   @ApiBody({ type: PostPartaiDto })
   @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "Authorization Required" })
-  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @UseInterceptors(FileInterceptor("image"))
   @Post("/")
@@ -73,7 +74,6 @@ export class PartaiController {
   @ApiBody({ type: UpdatePartaiDto })
   @ApiConsumes("multipart/form-data")
   @ApiOperation({ summary: "Authorization Required" })
-  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @UseInterceptors(FileInterceptor("image"))
   @Patch("/")
@@ -95,7 +95,6 @@ export class PartaiController {
   @ApiBearerAuth()
   @ApiBody({ type: DeletePartaiDto })
   @ApiOperation({ summary: "Authorization Required" })
-  @UseGuards(JwtGuard)
   @Roles(["ADMIN"])
   @Delete("/")
   async delete(@Body() deleteReq: DeletePartaiDto) {
