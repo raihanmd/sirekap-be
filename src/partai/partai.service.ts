@@ -9,7 +9,12 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-import { DeletePartaiDto, PostPartaiDto, UpdatePartaiDto } from "./dto";
+import {
+  DeletePartaiDto,
+  PostPartaiDto,
+  QueryPartaiParam,
+  UpdatePartaiDto,
+} from "./dto";
 import { PrismaService } from "../common/prisma/prisma.service";
 import { GoogleDriveService } from "../common/google-drive/google-drive.service";
 
@@ -22,14 +27,29 @@ export class PartaiService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getAll() {
-    return this.prismaService.politicalParties.findMany({
+  async getAll(queryReq: QueryPartaiParam) {
+    const skip = (queryReq.page - 1) * queryReq.size;
+
+    const payload = await this.prismaService.politicalParties.findMany({
       select: {
         id: true,
         name: true,
         image: true,
       },
+      take: queryReq.size,
+      skip,
     });
+
+    const total = await this.prismaService.politicalParties.count();
+
+    return {
+      payload,
+      meta: {
+        current_page: queryReq.page,
+        size: queryReq.size,
+        total_page: Math.ceil(total / queryReq.size),
+      },
+    };
   }
 
   async create(data: PostPartaiDto) {
