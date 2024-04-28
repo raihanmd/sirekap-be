@@ -4,8 +4,10 @@ import {
   Delete,
   Get,
   HttpCode,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
@@ -14,6 +16,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -36,11 +39,31 @@ export class PartaiController {
   ) {}
 
   @HttpCode(200)
+  @ApiQuery({
+    name: "page",
+    type: Number,
+    required: false,
+    allowReserved: true,
+  })
+  @ApiQuery({
+    name: "size",
+    type: Number,
+    required: false,
+    allowReserved: true,
+  })
   @Public()
   @Get("/")
-  async getAll() {
-    const res = await this.partaiService.getAll();
-    return this.responseService.success(res, 200);
+  async getAll(
+    @Query("page", new ParseIntPipe({ optional: true })) page?: number,
+    @Query("size", new ParseIntPipe({ optional: true })) size?: number,
+  ) {
+    const queryReq = {
+      page: page ?? 1,
+      size: size ?? 10,
+    };
+
+    const res = await this.partaiService.getAll(queryReq);
+    return this.responseService.pagination(res.payload, res.meta, 200);
   }
 
   @HttpCode(201)
