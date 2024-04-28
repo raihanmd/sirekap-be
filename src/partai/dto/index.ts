@@ -27,3 +27,9 @@ export class UpdatePartaiDto {
   })
   image?: Express.Multer.File;
 }
+
+export type QueryPartaiParam = {
+  page: number;
+
+  size: number;
+};
