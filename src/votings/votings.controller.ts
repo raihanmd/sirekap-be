@@ -13,10 +13,10 @@ export class VotingsController {
     private readonly responseService: ResponseService,
   ) {}
 
-  @Get("/")
+  @Get("/global")
   @Public()
   async getAll() {
-    const res = await this.votingsService.getAll();
+    const res = await this.votingsService.getGlobal();
     return this.responseService.success(res, 200);
   }
 }

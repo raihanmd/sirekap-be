@@ -1,9 +1,9 @@
+import { Candidates, CandidatesType } from "@prisma/client";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { PrismaService } from "../common/prisma/prisma.service";
-import { Candidates, CandidatesType } from "@prisma/client";
 
 @Injectable()
 export class VotingsService {
@@ -12,13 +12,28 @@ export class VotingsService {
     private readonly prismaService: PrismaService,
   ) {}
 
-  getAll() {
+  getGlobal() {
     return this.prismaService.votingEvents.findMany({
-      include: {
-        candidates: true,
+      select: {
+        id: true,
+        type: true,
+        start_time: true,
+        end_time: true,
+        candidates: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            party: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
       where: {
-        type: "PRESIDEN",
+        OR: [{ type: "PRESIDEN" }, { type: "DPR" }],
       },
     });
   }
