@@ -11,10 +11,10 @@ const ACCEPTED_MIME_TYPES = [
 export class CandidatesValidation {
   static POST = z
     .object({
-      name: z.string().min(3),
+      name: z.string().min(3).max(255),
       party_id: z.string().cuid(),
-      province_id: z.number(),
-      city_id: z.number(),
+      province_id: z.number().min(1),
+      city_id: z.number().min(1),
       type: z.nativeEnum(CandidatesType),
       image: z.any().superRefine((f, ctx) => {
         if (!ACCEPTED_MIME_TYPES.includes(f.mimetype)) {
@@ -69,10 +69,10 @@ export class CandidatesValidation {
   static PATCH = z
     .object({
       id: z.string().cuid(),
-      name: z.string().min(3).optional(),
+      name: z.string().min(3).max(255).optional(),
       party_id: z.string().cuid().optional(),
-      province_id: z.number().optional(),
-      city_id: z.number().optional(),
+      province_id: z.number().min(1).optional(),
+      city_id: z.number().min(1).optional(),
       type: z.nativeEnum(CandidatesType).optional(),
       image: z
         .any()

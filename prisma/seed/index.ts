@@ -83,6 +83,14 @@ async function seedVotingEvents() {
     province_id: 99,
   };
 
+  const wakilPresiden = {
+    type: "WAKIL_PRESIDEN",
+    start_time: time,
+    end_time: time + 86400 * 30,
+    city_id: 99,
+    province_id: 99,
+  };
+
   const dpr = {
     type: "DPR",
     start_time: time,
@@ -118,7 +126,7 @@ async function seedVotingEvents() {
   }
 
   await prisma.votingEvents.createMany({
-    data: [presiden, dpr, ...dpd, ...dprd],
+    data: [presiden, wakilPresiden, dpr, ...dpd, ...dprd],
   });
 }
 

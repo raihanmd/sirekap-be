@@ -11,7 +11,7 @@ const ACCEPTED_MIME_TYPES = [
 
 export class PartaiValidation {
   static POST = z.object({
-    name: z.string().min(1),
+    name: z.string().min(1).max(50),
     image: z.any().superRefine((f, ctx) => {
       if (!ACCEPTED_MIME_TYPES.includes(f.mimetype)) {
         ctx.addIssue({
@@ -40,7 +40,7 @@ export class PartaiValidation {
   static UPDATE = z
     .object({
       id: z.string().min(1),
-      name: z.string().min(1).optional(),
+      name: z.string().min(1).max(50).optional(),
       image: z
         .any()
         .superRefine((f, ctx) => {
