@@ -67,7 +67,7 @@ export class CandidatesService {
         take: queryReq.size,
         skip,
       })
-    ).map((data) => this.prettyResponse(data));
+    ).map((data) => CandidatesService.prettyResponse(data));
 
     const total = await this.prismaService.candidates.count({
       where: {
@@ -104,7 +104,7 @@ export class CandidatesService {
 
     this.logger.info(`Create Candidates: ${data.name}`);
 
-    return this.prettyResponse(
+    return CandidatesService.prettyResponse(
       await this.prismaService.candidates.create({
         data: {
           ...data,
@@ -178,7 +178,7 @@ export class CandidatesService {
 
     this.logger.info(`Update Candidates: ${candidate.name}`);
 
-    return this.prettyResponse(
+    return CandidatesService.prettyResponse(
       await this.prismaService.candidates.update({
         where: { id: data.id },
         data: updateData,
@@ -199,6 +199,7 @@ export class CandidatesService {
           party: {
             select: {
               name: true,
+              image: true,
             },
           },
         },
@@ -232,7 +233,7 @@ export class CandidatesService {
     return candidate;
   }
 
-  prettyResponse(data: Prisma.CandidatesWhereInput) {
+  static prettyResponse(data: any) {
     return {
       id: data.id,
       name: data.name,
@@ -241,6 +242,7 @@ export class CandidatesService {
       province: data.province?.name,
       city: data.city?.name,
       party: data.party?.name,
+      party_image: data.party?.image,
     };
   }
 }
